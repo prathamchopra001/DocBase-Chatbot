@@ -1,0 +1,11 @@
+langchain
+langchain_community
+transformers
+sentence-transformers
+pyPDF
+faiss-cpu
+torch
+ctransformers
+sqlalchemy
+numpy
+streamlit
