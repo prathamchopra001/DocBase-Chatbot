@@ -1,9 +1,14 @@
 import sqlite3
-from langchain_community.llms import Ollama
+from langchain_google_vertexai import ChatVertexAI
 from langchain.prompts import ChatPromptTemplate
 from langchain.chains import LLMChain
 
-llm = Ollama(model="llama3.1:8b")
+llm = ChatVertexAI(
+    model_name="gemini-1.5-flash-001",
+    temperature=0,
+    project="PROJECT_ID", # Replace with your GCP project ID
+    location="us-central1"
+)
 
 def extract_schema(db_file):
     try:

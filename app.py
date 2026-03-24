@@ -1,12 +1,12 @@
 import streamlit as st
 import os
 import sqlite3
-from langchain_community.llms import Ollama
+from langchain_google_vertexai import ChatVertexAI
 from langchain.prompts import ChatPromptTemplate
 from langchain.chains import LLMChain
 from langchain_community.document_loaders import PyPDFLoader, TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_google_vertexai import VertexAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
@@ -41,7 +41,12 @@ def extract_schema(db_file):
 
 # Function to generate SQL query
 def generate_sql_query(schema, question):
-    llm = Ollama(model="llama3.1:8b")
+    llm = ChatVertexAI(
+        model_name="gemini-1.5-flash-001",
+        temperature=0,
+        project="PROJECT_ID", # Replace with your GCP project ID
+        location="us-central1"
+    )
     prompt = ChatPromptTemplate.from_messages([
         ("system", "You are an AI assistant that generates SQL queries based on user requests. You have access to the following database schema:\n{schema}"),
         ("human", "Based on this schema, generate a SQL query to answer the following question: {question}"),
@@ -76,7 +81,11 @@ def process_documents(uploaded_files):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
     split_documents = text_splitter.split_documents(all_documents)
     
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    embeddings = VertexAIEmbeddings(
+        model_name="textembedding-gecko@003",
+        project="PROJECT_ID",
+        location="us-central1"
+    )
     db_faiss = FAISS.from_documents(split_documents, embeddings)
     return db_faiss
 
@@ -117,7 +126,12 @@ def main():
             return
 
         # Create retrieval chain
-        llm = Ollama(model="llama3.2:7b")
+        llm = ChatVertexAI(
+            model_name="gemini-1.5-flash-001",
+            temperature=0,
+            project="PROJECT_ID", # Replace with your GCP project ID
+            location="us-central1"
+        )
         chat_prompt = ChatPromptTemplate.from_template('''
         Answer the following question based on the provided documents and chat history.
         Think step by step before providing a detailed answer.

@@ -1,9 +1,9 @@
 import os
 from langchain_community.document_loaders import PyPDFLoader, TextLoader, DirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_google_vertexai import VertexAIEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain_community.llms import Ollama
+from langchain_google_vertexai import ChatVertexAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
@@ -51,12 +51,21 @@ text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=20
 split_documents = text_splitter.split_documents(all_documents)
 
 
-embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+embeddings = VertexAIEmbeddings(
+    model_name="textembedding-gecko@003",
+    project="gen-lang-client-0913445761",
+    location="us-central1"
+)
 db_faiss = FAISS.from_documents(split_documents, embeddings)
 db_faiss.save_local(DB_FAISS_PATH)
 
 
-llm = Ollama(model="llama3.1:8b")
+llm = ChatVertexAI(
+    model_name="gemini-1.5-flash-001",
+    temperature=0,
+    project="PROJECT_ID", # Replace with your GCP project ID
+    location="us-central1"
+)
 
 
 prompt = ChatPromptTemplate.from_template('''

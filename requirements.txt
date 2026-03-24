@@ -9,3 +9,5 @@ ctransformers
 sqlalchemy
 numpy
 streamlit
+langchain_ollamalangchain-google-vertexai
+google-cloud-aiplatform
